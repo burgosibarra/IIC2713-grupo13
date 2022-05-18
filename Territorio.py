@@ -12,9 +12,10 @@ df_derivated_3 = df_3[['TERRITORIO']]
 df_4[['TERRITORIO']] = df_4[['COMUNA']]
 df_derivated_4 = df_4[['TERRITORIO']]
 df_derivated = pd.concat([df_derivated_1, df_derivated_2, df_derivated_3, df_derivated_4])
-df_derivated['ID'] = df_derivated.index
-df_derivated_2 = df_derivated[['ID', 'TERRITORIO']]
-df_without_duplicates = df_derivated_2.drop_duplicates()
-df_without_duplicates.to_csv("Territorio.csv", index=False)
+data = df_derivated
+df_without_duplicates = data.drop_duplicates()
+df_without_duplicates['ID'] = df_without_duplicates.index
+df_derivated_final = df_without_duplicates[['ID', 'TERRITORIO']]
+df_derivated_final.to_csv("Territorio.csv", index=False)
 
 print(df_derivated.head(5))
