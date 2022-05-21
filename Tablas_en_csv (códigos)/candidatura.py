@@ -1,9 +1,28 @@
 from operator import concat
 import pandas as pd
+import re
+
+def clean_partido(name):
+    name = name.replace("PARTIDO ", "")
+    name = name.replace("IND ", "")
+    name = name.replace("DE ", "")
+    name = name.replace("(EX-PAIS PROGRESISTA)", "")
+    name = name.replace("INDEPENDIENTES", "INDEPENDIENTE")
+    name = name.strip()
+    return name
+
+def clean_territorio(name):
+    if "DISTRITO" in name:
+        number = re.sub(r'[^0-9]+', '', name)
+        name = "DISTRITO " + number
+    elif "CIRCUNSCRIPCION" in name:
+        number = re.sub(r'[^0-9]+', '', name)
+        name = "CIRCUNSCRIPCION " + number
+    return name
 
 partidos = dict()
 
-with open("Partidos.csv", "r") as document:
+with open("Tablas_en_csv/Partidos.csv", "r") as document:
     lines = document.readlines()
     for line in lines[1::]:
         line = line.strip()
@@ -11,7 +30,7 @@ with open("Partidos.csv", "r") as document:
 
 regiones = dict()
 
-with open("Region.csv", "r") as document:
+with open("Tablas_en_csv/Region.csv", "r") as document:
     lines = document.readlines()
     for line in lines[1::]:
         line = line.strip()
@@ -22,7 +41,7 @@ with open("Region.csv", "r") as document:
 
 territorios = dict()
 
-with open("Territorio.csv", "r") as document:
+with open("Tablas_en_csv/Territorio.csv", "r") as document:
     lines = document.readlines()
     for line in lines[1::]:
         line = line.strip()
@@ -30,7 +49,7 @@ with open("Territorio.csv", "r") as document:
 
 candidatos = dict()
 
-with open("Candidatos.csv", "r") as document:
+with open("Tablas_en_csv/Candidatos.csv", "r") as document:
     lines = document.readlines()
     for line in lines[1::]:
         line = line.strip()
@@ -38,8 +57,8 @@ with open("Candidatos.csv", "r") as document:
 
 
 lista_a_devolver = set()
-'''
-with open("Candidaturas_2021_arreglado_2.csv", "r") as document:
+
+with open("CSV limpios/Candidaturas_2021_CLEAN.csv", "r") as document:
     lines = document.readlines()
     for line in lines[1::]:
         line = line.strip()
@@ -49,30 +68,30 @@ with open("Candidaturas_2021_arreglado_2.csv", "r") as document:
         element = (
             line.split(",")[0],
             regiones[region_candidatura],
-            territorios[line.split(",")[3]],
+            territorios[clean_territorio(line.split(",")[3])],
             candidatos[line.split(",")[4]],
             2021,
-            partidos[line.split(",")[12]]
+            partidos[clean_partido(line.split(",")[12])]
         )
 
         lista_a_devolver.add(element)
-'''
-with open("Candidaturas_2013_2017_arreglado_2.csv", "r") as document:
+
+with open("CSV limpios/Candidaturas_2013_2017_CLEAN.csv", "r") as document:
     lines = document.readlines()
     for line in lines[1::]:
         line = line.strip()
         element = (
             line.split(",")[1],
             line.split(",")[2].replace(".0",""),
-            territorios[line.split(",")[3]],
+            territorios[clean_territorio(line.split(",")[3])],
             candidatos[line.split(",")[5]],
             line.split(",")[0],
-            partidos[line.split(",")[4]]
+            partidos[clean_partido(line.split(",")[4])]
         )
 
         lista_a_devolver.add(element)
 
-with open("Candidatura.csv", "w") as document:
+with open("Tablas_en_csv/Candidatura.csv", "w") as document:
     i = 0
     print("ID,CARGO,REGION.ID,TERRITORIO.ID,CANDIDATO.ID,ANO,PARTIDO.ID", file=document)
     for element in lista_a_devolver:

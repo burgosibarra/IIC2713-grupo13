@@ -1,22 +1,19 @@
-from operator import index
-import pandas as pd
-import openpyxl
-df_1 = pd.read_csv("CSV arreglados/Ingresos_Gastos_2017_Candidatos_CLEAN.csv", header=0)
-df_2 = pd.read_csv("Tablas_en_csv/Tipo_documento.csv", header=0)
 
-d1_derivate = df_1[['ID DOCUMENTO', 'TIPO DOCUMENTO','GLOSA DOCUMENTO']]
-d1_derivate[['ID DOCUMENTO']] = d1_derivate[['ID DOCUMENTO']].astype(int)
-final = d1_derivate.merge(df_2, on=["TIPO DOCUMENTO"], how="left")
-final[['TIPO_DOCUMENTO_ID']] = final[['ID']]
-final_2 = final[['ID DOCUMENTO', 'TIPO_DOCUMENTO_ID','GLOSA DOCUMENTO']]
-df_without_duplicates = final_2.drop_duplicates()
-df_without_duplicates.to_csv("Documentos.csv", index=False)
+tipos_docs = dict()
+with open("Tablas_en_csv/Tipo_documento.csv", "r") as document:
+    lines = document.readlines()
+    for line in lines[1::]:
+        line = line.strip().split(",")
+        tipos_docs[(line[1], line[2])] = line[0]
 
+documentos = dict()
+with open("CSV arreglados/Ingresos_Gastos_2017_Candidatos_CLEAN.csv", "r") as document:
+    lines = document.readlines()
+    for line in lines[1::]:
+        line = line.strip().split(",")
+        documentos[int(line[14])] = (tipos_docs[(line[10], line[11])], line[15])
 
-'''
-Documentos	
-ID	int
-idarchivo	float
-TipoDocumento.id	int
-glosa	str
-'''
+with open("Tablas_en_csv/Documento.csv", "w") as document:
+    print("ID,TIPO DOCUMENTO,GLOSA", file=document)
+    for id in documentos.keys():
+        print(str(id) + "," + documentos[id][0] + "," + documentos[id][1], file=document)
